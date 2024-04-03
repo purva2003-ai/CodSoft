@@ -1,0 +1,272 @@
+import numpy as np
+import pandas as pd
+
+import os
+for dirname, _, filenames in os.walk('/kaggle/input'):
+    for filename in filenames:
+     print(os.path.join(dirname, filename))
+
+
+file = pd.read_csv('/content/churn_modelling.csv')
+file.sample(4)
+
+file.info()
+
+file.head()
+
+file.shape
+
+file.describe()
+
+import missingno as msno
+msno.bar(file,color = 'Black')
+
+def missing_values_table(df):
+
+        mis_val = df.isnull().sum()
+
+
+        mis_val_percent = 100 * df.isnull().sum() / len(df)
+
+
+        mis_val_table = pd.concat([mis_val, mis_val_percent], axis=1)
+
+
+        mis_val_table_ren_columns = mis_val_table.rename(
+        columns = {0 : 'Missing Values', 1 : '% of Total Values'})
+
+
+        mis_val_table_ren_columns = mis_val_table_ren_columns[
+            mis_val_table_ren_columns.iloc[:,1] != 0].sort_values(
+        '% of Total Values', ascending=False).round(1)
+
+        print ("Your selected dataframe has " + str(df.shape[1]) + " columns.\n"
+            "There are " + str(mis_val_table_ren_columns.shape[0]) +
+              " columns that have missing values.")
+
+        return mis_val_table_ren_columns
+
+missing_values= missing_values_table(file)
+missing_values.style.background_gradient(cmap='Greens')
+
+file.drop(['RowNumber','CustomerId','Surname'],axis =1, inplace = True)
+file
+
+file['Gender'].value_counts()
+
+import seaborn as sns
+import matplotlib.pyplot as plt
+plt.figure(figsize = (10,5))
+plt.pie(file['Gender'].value_counts().values,labels=['Male','Female'],autopct='%.f%%',explode = [0,0.1],shadow = True)
+plt.show()
+
+region = file.Geography.value_counts().to_frame().reset_index()
+region.columns = ['Country','Count']
+
+plt.figure(figsize = (5,5))
+ax=sns.barplot(x = region['Country'],y = region['Count'],palette='GnBu')
+for i in ax.containers:
+    ax.bar_label(i,)
+
+plt.figure(figsize=(10, 6))
+
+ax = sns.histplot(data=file['Age'], bins=10, kde=False,color = 'Green',)
+
+plt.xlabel("Age")
+plt.ylabel("Frequency")
+plt.title("Age Distribution")
+
+plt.show()
+
+
+grouped_geo = file.groupby('Geography')
+grouped_geo.get_group('France')
+
+def Gender_detailed(gender):
+
+    Gender_detail = gender_group.get_group(gender)
+
+
+    print("============================================================")
+    print('Average income of the country are: {:.2f}'.format(Gender_detail['EstimatedSalary'].mean()))
+
+
+    print("============================================================")
+    sns.histplot(Gender_detail['Age'],bins = 10 , color =  'Green')
+    plt.xlabel("Age")
+    plt.ylabel("Frequency")
+    plt.title(f"Age Distribution of {gender}")
+    plt.show()
+
+    print("============================================================")
+
+    reg_exit = Gender_detail['Exited'].value_counts()
+    plt.figure(figsize = (10,5))
+    plt.pie(reg_exit.values,labels = ['Exit','Exist'],autopct = '%.f%%',explode = [0,0.1],shadow = True)
+    plt.title(f'Exit to Exists pie plot for {gender} region')
+    plt.legend()
+    plt.show()
+
+Gender_detailed('Male')
+
+
+Male_df = gender_group.get_group('Male')
+Male_gender_geo = Male_df.groupby('Geography')
+
+def Gender_country_detail(country,gender_geo):
+
+    country_detail = gender_geo.get_group(country)
+
+    print("============================================================")
+    print('Average income of the country are: {:.2f}'.format(country_detail['EstimatedSalary'].mean()))
+
+
+    print("============================================================")
+    sns.histplot(country_detail['Age'],bins = 10 , color =  'Green')
+    plt.xlabel("Age")
+    plt.ylabel("Frequency")
+    plt.title(f"Age Distribution of {country}")
+    plt.show()
+
+    print("============================================================")
+    reg_exit = country_detail['Exited'].value_counts()
+    plt.figure(figsize = (10,5))
+    plt.pie(reg_exit.values,labels = ['Exit','Exist'],autopct = '%.f%%',explode = [0,0.1],shadow = True)
+    plt.title(f'Exit to Exists pie plot for {country} region')
+    plt.legend()
+    plt.show()def Gender_country_detail(country,gender_geo):
+
+    country_detail = gender_geo.get_group(country)
+
+    print("============================================================")
+    print('Average income of the country are: {:.2f}'.format(country_detail['EstimatedSalary'].mean()))
+
+
+    print("============================================================")
+    sns.histplot(country_detail['Age'],bins = 10 , color =  'Green')
+    plt.xlabel("Age")
+    plt.ylabel("Frequency")
+    plt.title(f"Age Distribution of {country}")
+    plt.show()
+
+    print("============================================================")
+    reg_exit = country_detail['Exited'].value_counts()
+    plt.figure(figsize = (10,5))
+    plt.pie(reg_exit.values,labels = ['Exit','Exist'],autopct = '%.f%%',explode = [0,0.1],shadow = True)
+    plt.title(f'Exit to Exists pie plot for {country} region')
+    plt.legend()
+    plt.show()
+
+for i in Male_df['Geography'].unique():
+    print('\n\n')
+    print("============================================================")
+    print(f"\033[1m{i} details\033[0m")
+    print("============================================================")
+
+    Gender_country_detail(i,Male_gender_geo)for i in Male_df['Geography'].unique():
+    print('\n\n')
+    print("============================================================")
+    print(f"\033[1m{i} details\033[0m")
+    print("============================================================")
+
+    Gender_country_detail(i,Male_gender_geo)
+
+Female_df = gender_group.get_group('Female')
+Fem_gender_geo = Female_df.groupby('Geography')
+
+Fem_gender_geo.get_group('France')
+
+for i in Female_df['Geography'].unique():
+    print('\n\n')
+    print("============================================================")
+    print(f"\033[1m{i} details\033[0m")
+    print("============================================================")
+
+    Gender_country_detail(i,Fem_gender_geo)
+dataset = file.drop('Exited',axis = 1)
+
+dataset
+
+dataset.corrwith(file['Exited'],numeric_only = True).plot.bar(
+figsize =(12,8), title = 'Correlation with Exited',rot = 90 , grid = True)dataset.corrwith(file['Exited'],numeric_only = True).plot.bar(
+figsize =(12,8), title = 'Correlation with Exited',rot = 90 , grid = True)
+
+plt.figure(figsize = (16,9))
+sns.heatmap(file.corr(numeric_only = True),annot = True)
+
+x = dataset
+y = file.iloc[:,-1]
+
+from sklearn.model_selection import train_test_split
+
+X_train,X_test,y_train,y_test = train_test_split(x,y,random_state = 100,test_size = 0.3)from sklearn.model_selection import train_test_split
+
+X_train,X_test,y_train,y_test = train_test_split(x,y,random_state = 100,test_size = 0.3)
+
+
+X_train.shape
+
+X_test.shape
+
+X_train
+
+from sklearn.compose import ColumnTransformer
+from sklearn.preprocessing import OneHotEncoder,StandardScaler
+
+transformer = ColumnTransformer(
+                transformers = [
+                    ('state',OneHotEncoder(handle_unknown='ignore',sparse_output = False,drop = 'first'),['Geography','Gender'])
+                      ],remainder = 'passthrough')
+
+
+X_train_trf = transformer.fit_transform(X_train)
+
+X_test_trf = transformer.transform(X_test)
+
+Scaler = StandardScaler()
+
+X_train_trfs = Scaler.fit_transform(X_train_trf)
+
+X_test_trfs = Scaler.transform(X_test_trf)
+
+
+X_test_trfs
+
+from sklearn.linear_model import LogisticRegression
+classifier_lr = LogisticRegression(random_state = 0)
+ 
+y_pred_lr = classifier_lr.predict(X_test_trfs)
+
+y_pred_lr
+
+from sklearn.metrics import confusion_matrix,classification_report,accuracy_score
+print('The accuracy of our Logistic regression model is: {:.2f}%'.format(accuracy_score(y_test,y_pred_lr)*100))
+
+
+sns.heatmap(confusion_matrix(y_test,y_pred_lr),annot = True,cmap = 'GnBu')
+
+print(classification_report(y_test, y_pred_lr))
+
+from sklearn.model_selection import cross_val_score
+accuracies = cross_val_score(estimator = classifier_lr,X=X_train_trfs,y= y_train,cv = 10)
+
+
+print(accuracies)
+
+from sklearn.ensemble import RandomForestClassifier
+classifier_rf = RandomForestClassifier(random_state = 0)
+classifier_rf.fit(X_train_trfs,y_train)
+
+
+y_pred_rf = classifier_rf.predict(X_test_trfs)
+
+print('The accuracy of our Logistic regression model is: {:.2f}%'.format(accuracy_score(y_test,y_pred_rf)*100))
+
+sns.heatmap(confusion_matrix(y_test,y_pred_rf),annot = True,cmap = 'viridis')
+
+report = classification_report(y_test, y_pred_rf, output_dict=True)
+
+report_df = pd.DataFrame(report).transpose()
+report_df
+
+from sklearn.model_selection import cross_val_score
