@@ -1,0 +1,26 @@
+import pandas as pd
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.model_selection import train_test_split
+from sklearn.svm import SVC
+from sklearn.metrics import classification_report, accuracy_score
+
+data = {
+    'plot_summary': [
+        "In a galaxy far, far away, a young farm boy joins a rebellion against an evil empire.",
+        "A young woman falls in love with a wealthy man aboard the luxurious Titanic.",
+        "A group of friends embark on a journey to destroy a powerful ring and save Middle-earth.",
+        "A clownfish embarks on an adventurous journey to find his son who got captured in the Great Barrier Reef.",
+        "A retired CIA agent gets back into action to rescue his kidnapped daughter."
+    ],
+    'genre': ['Sci-Fi', 'Romance', 'Fantasy', 'Animation', 'Action']
+}
+
+df = pd.DataFrame(data)
+
+X_train_tfidf = tfidf_vectorizer.fit_transform(X_train)
+X_test_tfidf = tfidf_vectorizer.transform(X_test)
+
+svm_classifier = SVC(kernel='linear', C=1.0, probability=True)
+svm_classifier.fit(X_train_tfidf, y_train)
+
+y_pred = svm_classifier.predict(X_test_tfidf)
