@@ -1,2 +1,0 @@
-# CodSoft
-Machine Learning 
